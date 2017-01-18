@@ -1,0 +1,62 @@
+/**********************************************************************    
+
+MENDEL's ACCOUNTANT
+
+***********************************************************************/
+
+Notes for C version:
+--------------------
+
+* C is row-major.  Fortran is column-major.  Therefore all arrays
+  should be converted from array(a,b,c) to array[c][b][a].
+
+* C assumes arrays to start with 0.  
+
+* max/min functions are not supported in C. Therefore, they are 
+  typically defined with the preprocessor as:
+
+	#define max(a, b) (a > b ? a : b)
+	#define min(a, b) (a < b ? a : b)
+
+  This presents a problem in cases such as:
+  
+     y = min(2,abs( 1 + ((int)(2.*randomnum()))));
+
+  This becomes:
+
+     y = ( 2 < abs(1+((int)(2.*randomnum()))) ? 
+                     2 : abs(1+(((int)2.*randomnum()))) );
+
+  The problem is the random number generator gets calls twice, and thus
+  in some cases the call will return a value > 2, even though the call
+  should never return a value greater than 2.  So these should always
+  be changed as such:
+
+     x = abs(1+((int)(2*randomnum())));
+     y = min(a,x);
+
+* C currently uses Wall clock time for its timing.  There are three ways
+  to do timing in C: clock() (cpu time) and time() or gettimeofday() (wall
+  clock time).  The problem is that I was not able to get the resolution
+  of the clock call to be less than seconds (but maybe it is possible).
+
+-----------
+To-do List:
+-----------
+
+Primary importance:
+- using valkyrie/valgrind to debug for memory leaks
+  Note: the c-version of mendel is using 4 times memory of fortran version!
+- implement realloc
+  + for dynamic population sizes (requires memory reallocation)
+
+Secondary importance:
+- reduce memory allocation functions to just 3 void functions
+- develop struct for aggregating biological variables (i.e. individual)
+- debug favorable mutation cases
+- unit testing: make many mendel.in files which will exercise every aspect of code
+- compute CPU time instead of Wall time
+- pthread'ed version of Mendel
+- WinThreaded version of Mendel
+- use SVN instead of CVN... upload to SF repository
+
